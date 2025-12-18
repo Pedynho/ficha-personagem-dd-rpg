@@ -1,0 +1,176 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 24 15% 8%;
+    --foreground: 39 50% 90%;
+
+    --card: 30 20% 12%;
+    --card-foreground: 39 50% 90%;
+
+    --popover: 30 20% 12%;
+    --popover-foreground: 39 50% 90%;
+
+    --primary: 43 74% 49%;
+    --primary-foreground: 24 15% 8%;
+
+    --secondary: 30 15% 18%;
+    --secondary-foreground: 39 50% 90%;
+
+    --muted: 30 10% 20%;
+    --muted-foreground: 39 30% 60%;
+
+    --accent: 43 74% 49%;
+    --accent-foreground: 24 15% 8%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 142 71% 45%;
+    --success-foreground: 0 0% 100%;
+
+    --magic: 217 91% 60%;
+    --magic-foreground: 0 0% 100%;
+
+    --border: 30 15% 25%;
+    --input: 30 15% 20%;
+    --ring: 43 74% 49%;
+
+    --radius: 0.5rem;
+
+    --font-display: 'Cinzel', serif;
+    --font-body: 'Crimson Text', serif;
+
+    --parchment: 39 50% 92%;
+    --parchment-dark: 35 30% 85%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-body;
+    font-family: var(--font-body);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: var(--font-display);
+  }
+  
+  .font-body {
+    font-family: var(--font-body);
+  }
+
+  .text-gradient-gold {
+    background: linear-gradient(135deg, hsl(43 74% 60%), hsl(43 74% 40%));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .parchment-bg {
+    background: linear-gradient(
+      145deg,
+      hsl(var(--parchment)) 0%,
+      hsl(var(--parchment-dark)) 100%
+    );
+  }
+
+  .card-glow {
+    box-shadow: 
+      0 0 20px hsl(var(--primary) / 0.1),
+      inset 0 1px 0 hsl(var(--primary) / 0.1);
+  }
+
+  .attribute-box {
+    background: linear-gradient(
+      180deg,
+      hsl(var(--card)) 0%,
+      hsl(24 15% 6%) 100%
+    );
+    border: 2px solid hsl(var(--primary) / 0.3);
+  }
+
+  .skill-item {
+    border-bottom: 1px solid hsl(var(--border) / 0.5);
+  }
+
+  .input-fantasy {
+    background: hsl(var(--input));
+    border: 1px solid hsl(var(--border));
+    transition: all 0.2s ease;
+  }
+
+  .input-fantasy:focus {
+    border-color: hsl(var(--primary));
+    box-shadow: 0 0 0 2px hsl(var(--primary) / 0.2);
+  }
+
+  .tab-active {
+    background: linear-gradient(180deg, hsl(var(--primary)) 0%, hsl(43 74% 35%) 100%);
+    color: hsl(var(--primary-foreground));
+  }
+
+  .hp-bar {
+    background: linear-gradient(90deg, hsl(var(--destructive)) 0%, hsl(0 72% 40%) 100%);
+  }
+
+  .spell-slot-used {
+    background: hsl(var(--muted));
+    opacity: 0.4;
+  }
+
+  .spell-slot-available {
+    background: linear-gradient(135deg, hsl(var(--magic)) 0%, hsl(217 91% 45%) 100%);
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(var(--background));
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--primary) / 0.5);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--primary) / 0.7);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 5px hsl(var(--primary) / 0.3); }
+  50% { box-shadow: 0 0 15px hsl(var(--primary) / 0.5); }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
