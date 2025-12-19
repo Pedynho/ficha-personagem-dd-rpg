@@ -1,21 +1,25 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useCharacter } from '@/hooks/useCharacter';
 import { TabAtributos } from '@/components/TabAtributos';
 import { TabCombate } from '@/components/TabCombate';
 import { TabInventario } from '@/components/TabInventario';
 import { TabPerfil } from '@/components/TabPerfil';
 import { TabMagias } from '@/components/TabMagias';
-import { TabConfig } from '@/components/TabConfig';
-import { 
-  Dices, 
-  Swords, 
-  Package, 
-  User, 
+import { TabMore } from '@/components/TabMore';
+import { TabHistorico } from '@/components/TabHistorico';
+import {
+  Dices,
+  Swords,
+  Package,
+  History,
+  User,
   Sparkles,
-  Settings,
   RotateCcw,
   Moon,
-  ChevronDown
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Plus
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -25,19 +29,23 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { toast } from 'sonner';
 
-type TabKey = 'atributos' | 'combate' | 'inventario' | 'perfil' | 'magias' | 'config';
+type TabKey = 'atributos' | 'combate' | 'inventario' | 'perfil' | 'magias' | 'historico' | 'more';
 
 const tabs: { key: TabKey; label: string; icon: React.ElementType }[] = [
   { key: 'atributos', label: 'Atributos', icon: Dices },
   { key: 'combate', label: 'Combate', icon: Swords },
+  { key: 'magias', label: 'Magias', icon: Sparkles },
   { key: 'inventario', label: 'Inventário', icon: Package },
   { key: 'perfil', label: 'Perfil', icon: User },
-  { key: 'magias', label: 'Magias', icon: Sparkles },
-  { key: 'config', label: 'Config', icon: Settings },
+  { key: 'historico', label: 'Histórico', icon: History },
+  { key: 'more', label: 'Mais', icon: Plus },
 ];
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState<TabKey>('atributos');
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
   const {
     character,
     updateCharacter,
@@ -62,6 +70,22 @@ const Index = () => {
     });
   };
 
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const update = () => {
+      setCanScrollLeft(el.scrollLeft > 0);
+      setCanScrollRight(el.scrollWidth > el.clientWidth + el.scrollLeft + 1);
+    };
+    update();
+    el.addEventListener('scroll', update);
+    window.addEventListener('resize', update);
+    return () => {
+      el.removeEventListener('scroll', update);
+      window.removeEventListener('resize', update);
+    };
+  }, []);
+
   const handleReset = () => {
     if (confirm('Tem certeza que deseja resetar a ficha? Todos os dados serão perdidos.')) {
       resetCharacter();
@@ -85,7 +109,7 @@ const Index = () => {
                 </p>
               )}
             </div>
-            
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="p-2 hover:bg-secondary rounded-lg transition-colors">
@@ -127,6 +151,15 @@ const Index = () => {
             getModifier={getModifier}
           />
         )}
+        {activeTab === 'magias' && (
+          <TabMagias
+            character={character}
+            onCharacterChange={updateCharacter}
+            onSpellcastingChange={updateSpellcasting}
+            onUseSpellSlot={useSpellSlot}
+            onRestoreSpellSlot={restoreSpellSlot}
+          />
+        )}
         {activeTab === 'inventario' && (
           <TabInventario
             character={character}
@@ -140,49 +173,75 @@ const Index = () => {
             onCharacterChange={updateCharacter}
           />
         )}
-        {activeTab === 'magias' && (
-          <TabMagias
+        {activeTab === 'historico' && (
+          <TabHistorico
             character={character}
             onCharacterChange={updateCharacter}
-            onSpellcastingChange={updateSpellcasting}
-            onUseSpellSlot={useSpellSlot}
-            onRestoreSpellSlot={restoreSpellSlot}
           />
         )}
-        {activeTab === 'config' && (
-          <TabConfig
+        {activeTab === 'more' && (
+          <TabMore
             character={character}
             onImportCharacter={importCharacter}
           />
         )}
       </main>
 
-      {/* Bottom Navigation */}
+      {/* Bottom Navigation (carousel) */}
       <nav className="fixed bottom-0 left-0 right-0 bg-card/95 backdrop-blur border-t border-border safe-area-pb">
-        <div className="container max-w-lg mx-auto">
-          <div className="flex justify-around">
-            {tabs.map((tab) => {
-              const Icon = tab.icon;
-              const isActive = activeTab === tab.key;
-              return (
-                <button
-                  key={tab.key}
-                  onClick={() => setActiveTab(tab.key)}
-                  className={`flex-1 flex flex-col items-center py-3 px-2 transition-all ${
-                    isActive
-                      ? 'text-primary'
-                      : 'text-muted-foreground hover:text-foreground'
-                  }`}
-                >
-                  <div className={`p-1.5 rounded-lg transition-all ${isActive ? 'bg-primary/20' : ''}`}>
-                    <Icon className="w-5 h-5" />
-                  </div>
-                  <span className={`text-[10px] mt-1 font-display tracking-wide ${isActive ? 'text-primary' : ''}`}>
-                    {tab.label}
-                  </span>
-                </button>
-              );
-            })}
+        <div className="container max-w-lg mx-auto px-2">
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                const el = scrollRef.current;
+                if (!el) return;
+                el.scrollBy({ left: -el.clientWidth * 0.6, behavior: 'smooth' });
+              }}
+              aria-hidden={!canScrollLeft}
+              className={`p-2 rounded ${canScrollLeft ? 'text-foreground' : 'text-muted-foreground opacity-50 pointer-events-none'}`}>
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+
+            <div
+              ref={scrollRef}
+              className="flex gap-2 overflow-x-auto no-scrollbar py-2 px-1"
+              onScroll={() => {
+                const el = scrollRef.current;
+                if (!el) return;
+                setCanScrollLeft(el.scrollLeft > 0);
+                setCanScrollRight(el.scrollWidth > el.clientWidth + el.scrollLeft + 1);
+              }}
+            >
+              {tabs.map((tab) => {
+                const Icon = tab.icon;
+                const isActive = activeTab === tab.key;
+                return (
+                  <button
+                    key={tab.key}
+                    onClick={() => setActiveTab(tab.key)}
+                    className={`flex-none min-w-[64px] max-w-[120px] flex flex-col items-center py-2 px-3 rounded-lg transition-all whitespace-nowrap ${isActive ? 'text-primary bg-primary/5' : 'text-muted-foreground hover:text-foreground'}`}
+                  >
+                    <div className={`p-1 rounded ${isActive ? 'bg-primary/20' : ''}`}>
+                      <Icon className="w-5 h-5" />
+                    </div>
+                    <span className={`text-[10px] mt-1 font-display tracking-wide ${isActive ? 'text-primary' : ''}`}>
+                      {tab.label}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
+            <button
+              onClick={() => {
+                const el = scrollRef.current;
+                if (!el) return;
+                el.scrollBy({ left: el.clientWidth * 0.6, behavior: 'smooth' });
+              }}
+              aria-hidden={!canScrollRight}
+              className={`p-2 rounded ${canScrollRight ? 'text-foreground' : 'text-muted-foreground opacity-50 pointer-events-none'}`}>
+              <ChevronRight className="w-5 h-5" />
+            </button>
           </div>
         </div>
       </nav>

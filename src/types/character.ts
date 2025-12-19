@@ -84,6 +84,8 @@ export interface Character {
         spellSlots: SpellSlots;
         spellsKnown: SpellsByLevel;
     };
+    // Histórico de notas narrativas
+    historico: { datetime: string; nota: string }[];
 }
 
 export interface Attack {
@@ -238,4 +240,5 @@ export const getDefaultCharacter = (): Character => ({
             9: [],
         },
     },
+    historico: [],
 });
