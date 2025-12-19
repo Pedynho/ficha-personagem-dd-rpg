@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# Point to sitemap (replace with your real domain)
+Sitemap: https://minhaficharpg.digital/sitemap.xml
